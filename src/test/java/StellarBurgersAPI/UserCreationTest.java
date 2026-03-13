@@ -1,0 +1,77 @@
+package StellarBurgersAPI;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+
+
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+
+public class UserCreationTest {
+
+
+    private UserClient userClient;
+    private String accessToken;
+
+    @Before
+    public void setUp() {
+        RestAssured.baseURI = "https://stellarburgers.education-services.ru";
+        userClient = new UserClient();
+    }
+
+    @After
+    public void tearDown() {
+        if (accessToken != null) {
+            userClient.deleteUser(accessToken);
+        }
+    }
+
+    @Test
+    public void successfulUserCreation() {
+        User user = UserGenerator.getRandomUser();
+        Response response = userClient.createUser(user);
+        accessToken = response.jsonPath().getString("accessToken");
+
+        response.then()
+                .statusCode(200)
+                .body("success", equalTo(true))
+                .body("user.email", equalTo(user.getEmail().toLowerCase()))
+                .body("user.name", equalTo(user.getName()))
+                .body("accessToken", notNullValue())
+                .body("refreshToken", notNullValue());
+    }
+
+    @Test
+    public void createUserAlreadyRegistered() {
+        User user = UserGenerator.getRandomUser();
+        Response createResponse = userClient.createUser(user);
+        accessToken = createResponse.jsonPath().getString("accessToken");
+
+        Response response = userClient.createUser(user);
+
+        response.then()
+                .statusCode(403)
+                .body("success", equalTo(false))
+                .body("message", equalTo("User already exists"));
+    }
+
+    @Test
+    public void createUserWithoutRequiredField() {
+        User user = new User(
+                null,
+                "passss12312",
+                "Dom Torr"
+        );
+
+        Response response = userClient.createUser(user);
+
+        response.then()
+                .statusCode(403)
+                .body("success", equalTo(false))
+                .body("message", equalTo("Email, password and name are required fields"));
+    }
+}
