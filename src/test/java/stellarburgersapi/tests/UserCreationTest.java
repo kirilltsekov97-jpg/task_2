@@ -1,15 +1,20 @@
-package StellarBurgersAPI;
+package stellarburgersapi.tests;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import stellarburgersapi.client.UserClient;
+import stellarburgersapi.generator.UserGenerator;
+import stellarburgersapi.model.User;
+
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class UserLoginTest {
+public class UserCreationTest {
+
 
     private UserClient userClient;
     private String accessToken;
@@ -28,12 +33,10 @@ public class UserLoginTest {
     }
 
     @Test
-    public void successfulUserLogin() {
+    public void successfulUserCreation() {
         User user = UserGenerator.getRandomUser();
-        Response createResponse = userClient.createUser(user);
-        accessToken = createResponse.jsonPath().getString("accessToken");
-
-        Response response = userClient.loginUser(user);
+        Response response = userClient.createUser(user);
+        accessToken = response.jsonPath().getString("accessToken");
 
         response.then()
                 .statusCode(200)
@@ -45,22 +48,32 @@ public class UserLoginTest {
     }
 
     @Test
-    public void loginWithInvalidCredentialsShouldReturnError() {
+    public void createUserAlreadyRegistered() {
         User user = UserGenerator.getRandomUser();
         Response createResponse = userClient.createUser(user);
         accessToken = createResponse.jsonPath().getString("accessToken");
 
-        User wrongUser = new User(
-                user.getEmail(),
-                "wrongPassword",
-                user.getName()
-        );
-
-        Response response = userClient.loginUser(wrongUser);
+        Response response = userClient.createUser(user);
 
         response.then()
-                .statusCode(401)
+                .statusCode(403)
                 .body("success", equalTo(false))
-                .body("message", equalTo("email or password are incorrect"));
+                .body("message", equalTo("User already exists"));
+    }
+
+    @Test
+    public void createUserWithoutRequiredField() {
+        User user = new User(
+                null,
+                "passss12312",
+                "Dom Torr"
+        );
+
+        Response response = userClient.createUser(user);
+
+        response.then()
+                .statusCode(403)
+                .body("success", equalTo(false))
+                .body("message", equalTo("Email, password and name are required fields"));
     }
 }

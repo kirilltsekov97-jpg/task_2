@@ -1,10 +1,14 @@
-package StellarBurgersAPI;
+package stellarburgersapi.tests;
 
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import stellarburgersapi.client.OrderClient;
+import stellarburgersapi.client.UserClient;
+import stellarburgersapi.generator.UserGenerator;
+import stellarburgersapi.model.User;
 
 import java.util.Arrays;
 import java.util.HashMap;

@@ -1,4 +1,4 @@
-package StellarBurgersAPI;
+package stellarburgersapi.model;
 
 public class User {
     private String email;
@@ -15,11 +15,11 @@ public class User {
         return email;
     }
 
-    public String getPassword () {
+    public String getPassword() {
         return password;
     }
 
     public String getName() {
-        return  name;
+        return name;
     }
 }
