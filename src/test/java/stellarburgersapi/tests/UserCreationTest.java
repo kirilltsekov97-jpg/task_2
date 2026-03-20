@@ -1,6 +1,6 @@
 package stellarburgersapi.tests;
+import io.qameta.allure.Description;
 
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +13,7 @@ import stellarburgersapi.model.User;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class UserCreationTest {
+public class UserCreationTest extends BaseTest {
 
 
     private UserClient userClient;
@@ -21,7 +21,7 @@ public class UserCreationTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://stellarburgers.education-services.ru";
+
         userClient = new UserClient();
     }
 
@@ -33,6 +33,7 @@ public class UserCreationTest {
     }
 
     @Test
+    @Description("Создание уникального пользователя должно быть успешным")
     public void successfulUserCreation() {
         User user = UserGenerator.getRandomUser();
         Response response = userClient.createUser(user);
@@ -48,6 +49,7 @@ public class UserCreationTest {
     }
 
     @Test
+    @Description("Создание уже зарегистрированного пользователя должно возвращать ошибку")
     public void createUserAlreadyRegistered() {
         User user = UserGenerator.getRandomUser();
         Response createResponse = userClient.createUser(user);
@@ -62,6 +64,7 @@ public class UserCreationTest {
     }
 
     @Test
+    @Description("Создание пользователя без заполнения обязательного поля должно возвращать ошибку")
     public void createUserWithoutRequiredField() {
         User user = new User(
                 null,

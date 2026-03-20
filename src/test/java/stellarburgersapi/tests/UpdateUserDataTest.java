@@ -1,6 +1,6 @@
 package stellarburgersapi.tests;
+import io.qameta.allure.Description;
 
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -11,7 +11,7 @@ import stellarburgersapi.model.User;
 
 import static org.hamcrest.Matchers.equalTo;
 
-public class UpdateUserDataTest {
+public class UpdateUserDataTest extends BaseTest{
 
     private UserClient userClient;
     private String accessToken;
@@ -19,7 +19,7 @@ public class UpdateUserDataTest {
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://stellarburgers.education-services.ru";
+
         userClient = new UserClient();
 
         user = UserGenerator.getRandomUser();
@@ -35,6 +35,7 @@ public class UpdateUserDataTest {
     }
 
     @Test
+    @Description("Изменение email пользователя с авторизацией должно быть успешным")
     public void updateUserEmailWithAuthorization() {
         User updatedUser = new User(
                 "updated" + System.currentTimeMillis() + "@mail.ru",
@@ -52,6 +53,7 @@ public class UpdateUserDataTest {
     }
 
     @Test
+    @Description("Изменение имени пользователя с авторизацией должно быть успешным")
     public void updateUserNameWithAuthorization() {
         User updatedUser = new User(
                 user.getEmail(),
@@ -69,6 +71,7 @@ public class UpdateUserDataTest {
     }
 
     @Test
+    @Description("Изменение пароля пользователя с авторизацией должно быть успешным")
     public void updateUserPasswordWithAuthorization() {
         User updatedUser = new User(
                 user.getEmail(),
@@ -86,6 +89,7 @@ public class UpdateUserDataTest {
     }
 
     @Test
+    @Description("Изменение данных пользователя без авторизации должно возвращать ошибку")
     public void updateUserDataWithoutAuthorization() {
         User updatedUser = new User(
                 "newemail@mail.ru",

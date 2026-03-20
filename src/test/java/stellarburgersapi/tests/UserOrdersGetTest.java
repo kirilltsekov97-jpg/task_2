@@ -1,10 +1,13 @@
 package stellarburgersapi.tests;
 
-import io.restassured.RestAssured;
+import io.qameta.allure.Description;
+
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import stellarburgersapi.client.IngredientClient;
+
 import stellarburgersapi.client.OrderClient;
 import stellarburgersapi.client.UserClient;
 import stellarburgersapi.generator.UserGenerator;
@@ -17,17 +20,19 @@ import java.util.Map;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class UserOrdersGetTest {
+public class UserOrdersGetTest extends BaseTest{
 
     private UserClient userClient;
     private OrderClient orderClient;
     private String accessToken;
+    private IngredientClient ingredientClient;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://stellarburgers.education-services.ru";
+
         userClient = new UserClient();
         orderClient = new OrderClient();
+        ingredientClient = new IngredientClient();
     }
 
     @After
@@ -38,16 +43,18 @@ public class UserOrdersGetTest {
     }
 
     @Test
+    @Description("Получение заказов авторизованным пользователем")
     public void getOrdersWithAuthorization() {
         User user = UserGenerator.getRandomUser();
         Response createUserResponse = userClient.createUser(user);
         accessToken = createUserResponse.jsonPath().getString("accessToken");
 
+        Response ingredientsResponse = ingredientClient.getIngredients();
+        String firstIngredientId = ingredientsResponse.jsonPath().getString("data[0]._id");
+        String secondIngredientId = ingredientsResponse.jsonPath().getString("data[1]._id");
+
         Map<String, Object> body = new HashMap<>();
-        body.put("ingredients", Arrays.asList(
-                "61c0c5a71d1f82001bdaaa6d",
-                "61c0c5a71d1f82001bdaaa6f"
-        ));
+        body.put("ingredients", Arrays.asList(firstIngredientId, secondIngredientId));
 
         orderClient.createOrderWithAuth(body, accessToken);
 
@@ -60,6 +67,7 @@ public class UserOrdersGetTest {
     }
 
     @Test
+    @Description("Получение заказов неавторизованным пользователем должно возвращать ошибку")
     public void getOrdersWithoutAuthorization() {
         Response response = orderClient.getUserOrdersWithoutAuth();
 

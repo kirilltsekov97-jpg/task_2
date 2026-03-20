@@ -1,6 +1,6 @@
 package stellarburgersapi.tests;
+import io.qameta.allure.Description;
 
-import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.After;
 import org.junit.Before;
@@ -12,14 +12,14 @@ import stellarburgersapi.model.User;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-public class UserLoginTest {
+public class UserLoginTest extends BaseTest{
 
     private UserClient userClient;
     private String accessToken;
 
     @Before
     public void setUp() {
-        RestAssured.baseURI = "https://stellarburgers.education-services.ru";
+
         userClient = new UserClient();
     }
 
@@ -31,6 +31,7 @@ public class UserLoginTest {
     }
 
     @Test
+    @Description("Логин под существующим пользователем должен быть успешным")
     public void successfulUserLogin() {
         User user = UserGenerator.getRandomUser();
         Response createResponse = userClient.createUser(user);
@@ -48,6 +49,7 @@ public class UserLoginTest {
     }
 
     @Test
+    @Description("Логин с неверным логином и паролем должен возвращать ошибку")
     public void loginWithInvalidCredentialsShouldReturnError() {
         User user = UserGenerator.getRandomUser();
         Response createResponse = userClient.createUser(user);
